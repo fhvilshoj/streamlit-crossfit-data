@@ -47,7 +47,7 @@ def get_data():
 def plot_week_heatmap(data):
     tmp = data[["event_time", "count"]].groupby("event_time").sum().reset_index()
     chart = (
-        alt.Chart(tmp, title="Weakly Distribution")
+        alt.Chart(tmp, title="Weekly Distribution")
         .mark_rect()
         .encode(
             alt.X(
