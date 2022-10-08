@@ -11,7 +11,6 @@ import altair as alt
 import numpy as np
 import pandas as pd
 import streamlit as st
-from matplotlib import use
 from sklearn import linear_model
 
 
@@ -222,9 +221,6 @@ def main():
         st.markdown("# Member statistics")
         plot_top_20_participants(data)
         plot_num_unique_names_over_time(data)
-
-    stat = Path("workout_log.json").stat()
-    from datetime import datetime
 
     st.write("Last data update: ")
     st.write(data["event_time"].max())
