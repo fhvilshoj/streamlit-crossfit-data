@@ -1,6 +1,7 @@
 import hashlib
 import json
 import os
+import re
 from datetime import datetime
 from html import unescape
 from itertools import chain
@@ -45,6 +46,38 @@ def get_data():
     df["week"] = df["event_time"].dt.isocalendar().week
     df["count"] = 1
     return df
+
+
+@st.cache
+def get_workouts():
+    workout_dir = Path("wods/txts")
+    if not workout_dir.is_dir():
+        return []
+
+    results = []
+    for file in workout_dir.iterdir():
+        if file.suffix != ".txt":
+            continue
+
+        week = (int(file.stem.split("-")[1]),)
+
+        day = "unknown"
+        content_lines = []
+        with file.open("r", encoding="utf-8") as f:
+            for line in f:
+                match = re.match(r"^(\(\w+\)|Scalering)", line)
+                if match:
+                    if content_lines:
+                        results.append(
+                            {"week": week, "day": day, "wod": "\n".join(content_lines)}
+                        )
+                    day = match.group(0).replace("(", "").replace(")", "")
+                    content_lines = []
+                    continue
+                content_lines.append(line)
+
+    results = pd.DataFrame(results)
+    return results
 
 
 def plot_week_heatmap(data):
@@ -224,6 +257,15 @@ def main():
         st.markdown("# Member statistics")
         plot_top_20_participants(data)
         plot_num_unique_names_over_time(data)
+
+    workouts = get_workouts()
+    if workouts.shape[0] > 0:
+        with st.container():
+            st.title("WOD statistics")
+            burpee_rows = workouts[workouts["wod"].str.lower().str.contains("burpee")]
+            st.metric(
+                "Days with Burpees", f"{burpee_rows.shape[0]}/{workouts.shape[0]}"
+            )
 
     st.write("Last data update: ")
     st.write(data["event_time"].max())
