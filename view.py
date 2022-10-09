@@ -15,6 +15,9 @@ from sklearn import linear_model
 
 
 def download_data():
+    log_file = Path("workout_log.json")
+    if log_file.is_file():
+        return
     request.urlretrieve(os.environ["JSON_URL"], "workout_log.json")
 
 

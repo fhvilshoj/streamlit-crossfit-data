@@ -1,5 +1,6 @@
+wods/
 cache.json
-
+workout_log.json
 
 
 # Created by https://www.toptal.com/developers/gitignore/api/macos,vim,visualstudiocode,python
